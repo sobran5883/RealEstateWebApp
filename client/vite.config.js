@@ -1,15 +1,28 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server:{              //here we created a server and a proxy, we just say each time the adderss starts and includes /api at localhost 3000 at the beginning
-    proxy:{             //here we create proxy so we can request to the correct address each time
-      '/api':{
-        target:'http://localhost:3000',  //this is not secure that's why we have to target it and say secure:false
-        secure:false,
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        secure: false,
       },
     },
   },
   plugins: [react()],
-})
+  build: {
+    outDir: 'dist', // Ensures the output directory is 'dist'
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000, // Increase the chunk size warning limit if needed
+  },
+});
